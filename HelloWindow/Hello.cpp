@@ -9,6 +9,14 @@
 void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
+const char *
+readToCString(std::string file){
+	std::ifstream t(file);
+	std::stringstream content;
+	content << t.rdbuf();
+	return  content.str().c_str();;
+}
+
 int
 main() {
 	glfwInit();
@@ -27,17 +35,21 @@ main() {
 
 	glfwSetKeyCallback(window, key_callback);
 
-	std::ifstream t("basic.vert");
-	std::stringstream vertexShaderSource;
-	vertexShaderSource << t.rdbuf();
-	const GLchar * vertexShaderSourceGLC = vertexShaderSource.str().c_str();
 	
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-	glShaderSource(vertexShader, 1, &vertexShaderSourceGLC, NULL);
+	const GLchar* vertexShaderSource = readToCString("basic.vert");
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
-	
 
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	const GLchar* fragmentShaderSource = readToCString("basic.frag");
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	
+	
 	GLfloat vertices[] = {
 		-0.5f, -0.5f,
 		0.5f, -0.5f,
