@@ -1,21 +1,26 @@
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <streambuf>
 
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-const char *
-readToCString(std::string file){
-	std::ifstream t(file);
-	std::stringstream content;
-	content << t.rdbuf();
-	return  content.str().c_str();
-}
+
+const GLchar* vertexShaderSource = "#version 440 core\n"
+    "layout (location = 0) in vec2 position;\n"
+    "void main()\n"
+    "{\n"
+	"gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n"
+    "}\0";
+
+const GLchar* fragmentShaderSource = "#version 440 core\n"
+    "out vec4 color;\n"
+    "void main()\n"
+    "{\n"
+	"color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n\0";
 
 int
 main() {
@@ -34,63 +39,17 @@ main() {
 	glViewport( 0, 0, 800, 600);
 
 	glfwSetKeyCallback(window, key_callback);
-
 	
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	//const GLchar* vertexShaderSource = readToCString("basic.vert");
-	const GLchar* vertexShaderSource = "#version 440 core\n"
-    "layout (location = 0) in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n"
-    "}\0";
-	std::cout << vertexShaderSource << '\n';
+	GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	GLint shaderProgram = glCreateProgram();
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
-
-	GLint success;
-	GLchar infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if(!success){
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource = readToCString("basic.frag");
-	const GLchar* fragmentShaderSource = "#version 440 core\n"
-    "out vec4 color;\n"
-    "void main()\n"
-    "{\n"
-        "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
-	std::cout << fragmentShaderSource << '\n';
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	
-	if(!success){
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	GLuint shaderProgram = glCreateProgram();
-	
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
-
 	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if(!success){
-		glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	
@@ -100,15 +59,10 @@ main() {
 		0.0f, 0.5f
 	};
 
-	
-	
-	//generate VBO
 	GLuint VBO, VAO;//, EBO;
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
-	
 	
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
