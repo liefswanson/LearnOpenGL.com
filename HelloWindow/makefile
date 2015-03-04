@@ -1,14 +1,23 @@
-libs = -lGLEW -lglfw -lGL -lX11 -lpthread -lXrandr -lXi
+libs = -lGLEW -lglfw -lGL -lX11 -lpthread
 flags = -Wall -g
 std = -std=c++14
 cc = clang++
 
 
-all: a.out
+all: main.o shader.o
+	$(cc) $(std) $(libs) main.o shader.o -o main.exe
 
-a.out: main.cpp
-	$(cc) $(std) $(flags) $(libs) main.cpp -o a.out
-run:
-	primusrun ./a.out
+main.o: main.cpp
+	$(cc) $(std) $(flags) -c main.cpp -o main.o
+
+shader.o: shader.cpp
+	$(cc) $(std) $(flags) -c shader.cpp -o shader.o
+
+prun: all
+	primusrun ./main.exe
+
+run: all
+	./main.exe
+
 clean:
-	rm ./a.out
+	rm *.o

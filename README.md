@@ -1,2 +1,2 @@
 # LearnOpenGL.com
-me following the tutorials t learnopengl.com
+me following the tutorials at learnopengl.com
